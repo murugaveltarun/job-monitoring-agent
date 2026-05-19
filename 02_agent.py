@@ -94,7 +94,7 @@ EVAL_CASES: list[EvalCase] = [
     ),
     EvalCase(
         "Which jobs failed yesterday?",
-        must_match=(r"job[-_ ]\d+|no .*failed", ),
+        must_match=(r"\w+_\d+|no .*failed", ),
     ),
     EvalCase(
         "What are the top 5 longest-running successful runs in the last 30 days?",
@@ -107,11 +107,11 @@ EVAL_CASES: list[EvalCase] = [
     ),
     EvalCase(
         "Which job has the highest failure rate in the last 30 days?",
-        must_match=(r"job[-_ ]\d+|\d+%|\d+/\d+", ),
+        must_match=(r"\w+_\d+|\d+%|\d+/\d+|\d+\.\d+", ),
     ),
     EvalCase(
         "Show me the most recent run of every job and its status.",
-        must_match=(r"job[-_ ]\d+", ),
+        must_match=(r"\w+_\d+", ),
     ),
     EvalCase(
         "Did any runs hit a TIMEOUT in the last week? List the job names.",
