@@ -42,10 +42,13 @@ def make_warehouse_executor(http_path: str, max_rows: int) -> Executor:
     """
     from databricks import sql as dbsql  # imported lazily; not needed in notebooks
 
-    host = os.environ["DATABRICKS_HOST"].replace("https://", "").rstrip("/")
-    token = os.environ["DATABRICKS_TOKEN"]
-
     def execute(sql: str) -> pd.DataFrame:
+        # Env vars are read at query time, not at executor construction. At
+        # log_model time (notebook) the chain is built without DATABRICKS_HOST/
+        # _TOKEN set; Model Serving injects them at request time via the
+        # DatabricksSQLWarehouse resource.
+        host = os.environ["DATABRICKS_HOST"].replace("https://", "").rstrip("/")
+        token = os.environ["DATABRICKS_TOKEN"]
         # The LIMIT is enforced by the tool wrapper too, but doubling up here
         # protects against an enormous result set being pulled into memory.
         wrapped = f"SELECT * FROM ({sql}) AS _q LIMIT {max_rows}"
