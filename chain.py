@@ -16,6 +16,7 @@ import logging
 from pathlib import Path
 
 import mlflow
+from langchain_core.runnables import RunnableLambda
 
 from job_monitor.agent import build_agent
 from job_monitor.config import load_config
@@ -44,4 +45,15 @@ tool = build_query_tool(
 )
 agent = build_agent(cfg, [tool])
 
-mlflow.models.set_model(agent)
+
+def _final_message(state: dict) -> str:
+    # Agent Framework's agents.deploy() only accepts ChatCompletionResponse or
+    # StringResponse signatures. LangGraph returns the full state dict, which
+    # MLflow infers as Any. Returning the last message's content makes the
+    # output schema a string → StringResponse-compatible.
+    return state["messages"][-1].content
+
+
+chain = agent | RunnableLambda(_final_message)
+
+mlflow.models.set_model(chain)
