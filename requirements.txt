@@ -1,7 +1,7 @@
 databricks-langchain>=0.4.0
 databricks-agents>=0.10.0
 databricks-sql-connector>=3.4.0
-langgraph>=0.2.50
+langgraph>=0.6.0
 langchain-core>=0.3.0
 mlflow>=2.18.0
 sqlglot>=25.0.0
