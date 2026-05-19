@@ -10,7 +10,6 @@ Provides two SQL executors so the same tool definition works in both contexts:
 from __future__ import annotations
 
 import logging
-import os
 from collections.abc import Callable
 from typing import Any
 
@@ -36,26 +35,24 @@ def make_spark_executor(spark: Any, max_rows: int) -> Executor:
 def make_warehouse_executor(http_path: str, max_rows: int) -> Executor:
     """Build an executor that runs queries against a Databricks SQL warehouse.
 
-    Auth comes from env vars `DATABRICKS_HOST` / `DATABRICKS_TOKEN`. In Model
-    Serving these are injected automatically when the model is logged with a
-    `DatabricksSQLWarehouse` resource.
+    Auth is delegated to databricks-sdk's `Config`, which auto-detects:
+      - Model Serving: DATABRICKS_HOST + DATABRICKS_TOKEN (PAT)
+      - Databricks Apps: DATABRICKS_HOST + DATABRICKS_CLIENT_ID/SECRET (OAuth M2M)
+      - Local dev: ~/.databrickscfg profile
+    Resolution happens at query time so the executor can be built before any
+    of those env vars are present (e.g. inside mlflow.langchain.log_model).
     """
     from databricks import sql as dbsql  # imported lazily; not needed in notebooks
+    from databricks.sdk.core import Config
 
     def execute(sql: str) -> pd.DataFrame:
-        # Env vars are read at query time, not at executor construction. At
-        # log_model time (notebook) the chain is built without DATABRICKS_HOST/
-        # _TOKEN set; Model Serving injects them at request time via the
-        # DatabricksSQLWarehouse resource.
-        host = os.environ["DATABRICKS_HOST"].replace("https://", "").rstrip("/")
-        token = os.environ["DATABRICKS_TOKEN"]
-        # The LIMIT is enforced by the tool wrapper too, but doubling up here
-        # protects against an enormous result set being pulled into memory.
+        cfg = Config()
+        host = cfg.host.replace("https://", "").rstrip("/")
         wrapped = f"SELECT * FROM ({sql}) AS _q LIMIT {max_rows}"
         with dbsql.connect(
             server_hostname=host,
             http_path=http_path,
-            access_token=token,
+            credentials_provider=lambda: cfg.authenticate,
         ) as conn, conn.cursor() as cur:
             cur.execute(wrapped)
             return cur.fetchall_arrow().to_pandas()
