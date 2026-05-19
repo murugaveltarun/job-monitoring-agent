@@ -15,16 +15,33 @@ from sqlglot import exp
 logger = logging.getLogger(__name__)
 
 
-_FORBIDDEN_NODES: tuple[type[exp.Expression], ...] = (
-    exp.Insert,
-    exp.Update,
-    exp.Delete,
-    exp.Drop,
-    exp.Create,
-    exp.AlterTable,
-    exp.TruncateTable,
-    exp.Merge,
-    exp.Command,
+def _node(*names: str) -> type[exp.Expression] | None:
+    """Resolve the first sqlglot expression class that exists under any of the given names.
+
+    sqlglot occasionally renames node classes between minor versions
+    (e.g. `AlterTable` -> `Alter`). Resolving lazily here keeps the guard
+    working across versions instead of failing at import time.
+    """
+    for name in names:
+        node = getattr(exp, name, None)
+        if node is not None:
+            return node
+    return None
+
+
+_FORBIDDEN_NODES: tuple[type[exp.Expression], ...] = tuple(
+    n for n in (
+        exp.Insert,
+        exp.Update,
+        exp.Delete,
+        exp.Drop,
+        exp.Create,
+        _node("Alter", "AlterTable"),
+        _node("TruncateTable", "Truncate"),
+        exp.Merge,
+        exp.Command,
+    )
+    if n is not None
 )
 
 _ALLOWED_TOP_LEVEL: tuple[type[exp.Expression], ...] = (
