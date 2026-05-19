@@ -21,7 +21,7 @@ warehouse:
   # SQL warehouse HTTP path, e.g. /sql/1.0/warehouses/abc123.
   # Required for the served-model path (03_log_and_register / chain.py).
   # Leave null for notebook-only development against the in-cluster spark.
-  http_path: null
+  http_path: /sql/1.0/warehouses/4c3e8b4cf596a8db
 
 registry:
   # Unity Catalog model name used by 03_log_and_register.
