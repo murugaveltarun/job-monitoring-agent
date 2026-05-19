@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING
 
 import mlflow
 from databricks import agents
+from mlflow.models import infer_signature
 from mlflow.models.resources import (
     DatabricksServingEndpoint,
     DatabricksSQLWarehouse,
@@ -66,6 +67,11 @@ log.info("Will log chain.py and grant access to warehouse_id=%s", warehouse_id)
 
 mlflow.set_registry_uri("databricks-uc")
 
+# UC requires an explicit signature. MLflow can't reliably infer one for a
+# piped LangGraph chain, so we declare it from sample input/output.
+input_example = {"messages": [{"role": "user", "content": "How many runs failed yesterday?"}]}
+signature = infer_signature(input_example, "Example string response.")
+
 with mlflow.start_run(run_name="job_monitor_agent"):
     info = mlflow.langchain.log_model(
         lc_model="chain.py",
@@ -78,7 +84,8 @@ with mlflow.start_run(run_name="job_monitor_agent"):
             DatabricksSQLWarehouse(warehouse_id=warehouse_id),
         ],
         pip_requirements="requirements.txt",
-        input_example={"messages": [{"role": "user", "content": "How many runs failed yesterday?"}]},
+        input_example=input_example,
+        signature=signature,
     )
 
 log.info("Logged model: %s", info.model_uri)
