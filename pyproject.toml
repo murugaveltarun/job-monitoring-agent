@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "job-monitor-agent"
+version = "0.1.0"
+description = "Databricks enterprise job-monitoring agent (Mosaic AI Agent Framework + LangGraph)"
+requires-python = ">=3.10"
+readme = "README.md"
+dependencies = [
+    "pydantic>=2.7",
+    "pyyaml>=6.0",
+    "sqlglot>=25.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.6.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["job_monitor*"]
+exclude = ["tests*"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--strict-config"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF", "ANN"]
+ignore = ["E501", "ANN101", "ANN102"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ANN"]
+"0*.py" = ["E402"]  # notebook cells often have non-top imports

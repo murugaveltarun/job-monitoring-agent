@@ -1,0 +1,40 @@
+# Project-specific
+instructions.txt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# Testing / linting
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# MLflow / Databricks
+mlruns/
+mlartifacts/
+.databricks/
+
+# IDE / tooling
+.vscode/
+.idea/
+.claude/
+*.swp
+.DS_Store
+
+# Secrets
+.env
+.env.*
+!.env.example

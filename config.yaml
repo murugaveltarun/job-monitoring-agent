@@ -1,0 +1,28 @@
+table:
+  catalog: main
+  schema: default
+  name: job_logs
+
+llm:
+  endpoint: databricks-claude-sonnet-4
+  temperature: 0.0
+  max_tokens: 1500
+
+seed:
+  num_jobs: 20
+  num_runs: 500
+  num_days: 30
+  random_seed: 42
+
+agent:
+  max_rows_returned: 100
+
+warehouse:
+  # SQL warehouse HTTP path, e.g. /sql/1.0/warehouses/abc123.
+  # Required for the served-model path (03_log_and_register / chain.py).
+  # Leave null for notebook-only development against the in-cluster spark.
+  http_path: null
+
+registry:
+  # Unity Catalog model name used by 03_log_and_register.
+  uc_model_name: main.default.job_monitor_agent

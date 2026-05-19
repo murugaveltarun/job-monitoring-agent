@@ -1,0 +1,12 @@
+databricks-langchain>=0.4.0
+databricks-agents>=0.10.0
+databricks-sql-connector>=3.4.0
+langgraph>=0.2.50
+langchain-core>=0.3.0
+mlflow>=2.18.0
+sqlglot>=25.0.0
+pydantic>=2.7
+pyyaml>=6.0
+faker>=30.0
+tabulate>=0.9.0
+pyarrow>=15.0
