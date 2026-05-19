@@ -1,0 +1,25 @@
+# Databricks Apps manifest.
+#
+# Deploy from the workspace folder containing this file:
+#   databricks apps deploy job-monitor --source-code-path /Workspace/Users/.../poc
+#
+# Before deploy, attach these resources in the Apps UI (or via CLI):
+#   - SQL warehouse: the one referenced by config.yaml warehouse.http_path
+#   - Serving endpoint: the foundation-model endpoint in config.yaml llm.endpoint
+# That gives the App's service principal short-lived credentials for both,
+# and the DATABRICKS_HOST / DATABRICKS_TOKEN env vars that
+# make_warehouse_executor in job_monitor/tools.py reads at query time.
+
+command:
+  - "sh"
+  - "-c"
+  - "uvicorn app:app --host 0.0.0.0 --port $DATABRICKS_APP_PORT"
+
+env:
+  # Shared secret for X-App-Secret header. Create a Databricks secret first:
+  #   databricks secrets create-scope job-monitor-app
+  #   databricks secrets put-secret job-monitor-app shared_secret
+  # Then reference it here. Azure Bot Service holds the same value and sends
+  # it on every request.
+  - name: APP_SHARED_SECRET
+    valueFrom: "shared_secret"
