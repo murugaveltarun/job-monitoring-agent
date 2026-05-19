@@ -25,4 +25,4 @@ warehouse:
 
 registry:
   # Unity Catalog model name used by 03_log_and_register.
-  uc_model_name: main.default.job_monitor_agent
+  uc_model_name: jobs.default.job_monitor_agent
